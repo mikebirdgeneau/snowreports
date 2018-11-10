@@ -1,0 +1,137 @@
+\documentclass[10pt]{article}
+%\usepackage[pdftex]{graphicx}
+\usepackage[small,bf,sf,textfont={small,sf,bf}]{caption}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{SR}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage[round]{natbib}
+\usepackage{multirow}
+\usepackage{pslatex}
+\usepackage{color}
+\usepackage{datetime}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[section,subsection,subsubsection]{extraplaceins}
+\definecolor{lightgrey}{gray}{0.95}
+\definecolor{darkgrey}{gray}{0.3}
+\definecolor{cyan}{cmyk}{1.0,0.3,0,0.15}
+\usepackage{titlesec}
+\usepackage[hang,flushmargin,norule,bottom]{footmisc} 
+\usepackage{float}
+
+\renewcommand\familydefault{\sfdefault}
+
+\titleformat{\section}
+{\normalfont \large \sffamily }{\thesection.}{1em}{} %\color{cyan}
+
+\titleformat{\subsection}
+{\normalfont \large \sffamily \color{darkgrey}}{}{0.75em}{}
+
+\newcommand{\mytilde}{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}
+
+\def\tabularxcolumn#1{m{#1}}
+
+\newcommand{\degree}{\ensuremath{^\circ}}
+
+\makeatletter
+\def\blfootnote{\xdef\@thefnmark{}\@footnotetext}
+\makeatother
+
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+
+<<packages,echo=FALSE,error=FALSE,warning=FALSE>>=
+suppressPackageStartupMessages(require(data.table))
+load("../../output/pdf_lake_louise.Rda")
+@
+
+\begin{document}
+
+\pagestyle{fancy}
+
+\rfoot[]{\small \sffamily \href{http://snow-reports.ca/resorts/lake-louise}{http://snow-reports.ca/resorts/lake-louise}}
+\cfoot[]{\small \sffamily }
+\lfoot[]{\small \sffamily \href{http://snow-reports.ca}{Snow-Reports.ca}}
+
+%\setlength{\columnseprule}{0pt}
+
+\fancyhead{}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrulewidth}{0.0pt}
+
+\newcommand{\trp}{^{\scriptsize \text{T}}}
+\newcommand{\itp}{^{\scriptsize -\text{T}}}
+\newcommand{\sqrtp}{^{\scriptsize \text{T/2}}}
+\newcommand{\isqrtp}{^{\scriptsize -\text{T/2}}}
+\newcommand{\inv}{^{\scriptsize -1}}
+\newcommand{\sqr}{^{\scriptsize \text{1/2}}}
+\newcommand{\invsqr}{^{\scriptsize -\text{1/2}}}
+
+\vspace*{-1.0in}
+
+\begin{figure}[!ht]
+\flushright
+\includegraphics[width=0.4\textwidth]{./snowreportlogo_sm}
+\setlength{\abovecaptionskip}{-12pt}
+\end{figure}
+
+\vspace*{-0.65in}
+{\noindent \sffamily \huge {Lake Louise}}\\
+{\noindent \sffamily Weather Forecast for \Sexpr{format.POSIXct(min(local.data.sum$min.date),format="%A %b %d %Y, %H:%M %Z")} @ \Sexpr{local.data.sum$elev[1]}m Elevation}
+
+\noindent \hrulefill
+
+\section{Forecast Summary}
+\vspace*{0.10in}
+\graphicspath{ {/home/snowreports/snow-reports.ca/icons/} }
+\begin{tabularx}{0.9\textwidth}{X X X}
+%\hline
+\textbf{\sffamily Today} & \textbf{\sffamily Overnight} & \textbf{\sffamily Tomorrow} \\
+\includegraphics[width=1.25cm]{\Sexpr{local.data.sum[period=="today",,]$icon}} &
+\includegraphics[width=1.25cm]{\Sexpr{local.data.sum[period=="overnight",,]$icon}} &
+\includegraphics[width=1.25cm]{\Sexpr{local.data.sum[period=="tomorrow",,]$icon}} \\ 
+
+{\sffamily \Sexpr{local.data.sum[period=="today",,]$forecast}} & {\sffamily \Sexpr{local.data.sum[period=="overnight",,]$forecast}} & {\sffamily \Sexpr{local.data.sum[period=="tomorrow",,]$forecast}}
+%\hline
+\end{tabularx}
+
+\vspace*{0.25in}
+
+\section{Forecast Details}
+\begin{tabularx}{\textwidth}{ >{\hsize=.75\hsize}X | >{\hsize=.25\hsize}X }
+  \subsection{48h Forecast}
+  \graphicspath{ {/home/snowreports/snow-reports.ca/graphs/} }
+  \includegraphics[width=0.7\textwidth]{48h_forecast_Lake_Louise_precipitation.png} \newline
+  \includegraphics[width=0.7\textwidth]{48h_forecast_Lake_Louise_temperature.png} \newline
+  \includegraphics[width=0.7\textwidth]{48h_forecast_Lake_Louise_wind.png} \newline
+&
+  \subsection{Regional Forecast Maps}
+  \graphicspath{{/home/snowreports/snow-reports.ca/graphs/}}
+  24h Snowfall\newline
+  \includegraphics[width=0.23\textwidth]{24h_forecastGEM_snow_smpdf.png} \newline
+  48h Snowfall\newline
+  \includegraphics[width=0.23\textwidth]{48h_forecastGEM_snow_smpdf.png} \newline
+  24h Mean Cloud Cover\newline
+  \includegraphics[width=0.23\textwidth]{24h_forecastGEM_cloud_smpdf.png} \newline
+
+
+  \graphicspath{ {/home/snowreports/snow-reports.ca/icons/} }
+  \includegraphics[width=0.5cm]{simple_weather_icon_57.png} Sunrise: \Sexpr{format.POSIXct(min(local.data.sum$sunrise[1]),format="%H:%M %Z")} \newline
+  \includegraphics[width=0.5cm]{simple_weather_icon_56.png} Sunset: \Sexpr{format.POSIXct(min(local.data.sum$sunset[1]),format="%H:%M %Z")} \newline
+  \newline
+  \small{Location: \href{https://maps.google.ca/maps?q=\Sexpr{round(local.cells[which(local.cells$resort=="Lake Louise"),]$cell.y,3)},\Sexpr{round(local.cells[which(local.cells$resort=="Lake Louise"),]$cell.x,3)}&safe=off&t=p&z=13}{\Sexpr{paste0(round(abs(local.cells[which(local.cells$resort=="Lake Louise"),]$cell.x),3),"W, ",round(local.cells[which(local.cells$resort=="Lake Louise"),]$cell.y,3),"N")}}}
+\end{tabularx}
+
+
+\blfootnote{
+\noindent \textbf{Weather Data Provided by Environment Canada:} Regional Deterministic Prediction System (RDPS), 10km Forecast Grid
+
+\noindent Snow-Reports.ca does not warrant the quality, accuracy, continuity or completeness of any of
+the Data included herein. This Data is provided on an "AS-IS" basis without any warranty. This Data represents an average forecast within the 10km grid at the local grid cell; due to the nature of mountainous terrain, local conditions and snowfall may vary significantly from the approximation provided in this forecast model. Snowfall quantities are estimated assuming a density of $100kg/m^3$ which varies based upon several factors including terrain, aspect, temperatures and winds.
+}
+\clearpage
+
+\end{document}

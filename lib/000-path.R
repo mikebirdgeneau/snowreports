@@ -1,0 +1,1 @@
+path="/home/snowreports/snow-reports.ca/"

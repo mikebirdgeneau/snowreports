@@ -1,0 +1,69 @@
+% SPE.sty
+
+% SPE FIELDS
+\setlength{\oddsidemargin}{-0.5in}
+\setlength{\evensidemargin}{-0.5in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\textheight}{9.3in}
+\setlength{\textwidth}{7.5in}
+\marginparwidth 0pt \marginparsep 10pt
+\columnsep 0.5in \parindent  0pt   \parskip  0pt
+\setlength{\itemsep}{.5pt}
+\setlength{\parsep}{0pt}
+
+% SECTION
+\renewcommand{\section}{\@startsection%
+  {section}%                         % the name
+  {1}%                               % the level
+  {0pt}%                             % the indent
+  {8pt}%                             % the beforeskip
+  {2pt}%                             % the afterskip
+  {\large \bfseries \sffamily}}      % the style
+
+% SUB-SECTIONS
+\renewcommand{\subsection}{\@startsection%
+  {subsection}%                      % the name
+  {2}%                               % the level
+  {0pt}%                             % the indent
+  {8pt}%                             % the beforeskip
+  {2pt}%                            % the afterskip
+  {\bfseries}}             % the style
+\renewcommand{\subsubsection}{\@startsection%
+  {subsubsection}%                   % the name
+  {3}%                               % the level
+  {3pt}%                             % the indent
+  {6pt}%                             % the beforeskip
+  {2pt}%                            % the afterskip
+  {\bfseries \itshape}}              % the style
+
+% COUNTERS
+\pagenumbering{arabic}
+\setcounter{secnumdepth}{-1}
+
+% FLOATS
+\setcounter{topnumber}{10}            % max number of floats at top
+\setcounter{bottomnumber}{10}         % max number of floats at bottom
+\setcounter{totalnumber}{20}         % max number of floats on page
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\topfraction}{0.7}
+\setlength{\floatsep}{8pt}
+\setlength{\textfloatsep}{10pt}
+
+% REFERENCES
+\def\thebibliography#1{\section*{References\@mkboth{References}{References}}
+     \list {\arabic{enumi}.}
+     {\settowidth\labelwidth{#1.}\leftmargin\labelwidth
+       \advance\leftmargin 0pt \labelsep 5pt \labelwidth 20pt
+       \usecounter{enumi}}
+    \def\newblock{\hskip .11em plus .33em minus -.07em}
+     \sloppy \sfcode`\.=1000\relax }
+\let\endthebibliography=\endlist
+% CITE-Superscript
+\def\@cite#1#2{\raise.5ex\hbox{\scriptsize #1}}
+\def\@citex[#1]#2{\if@filesw\immediate\write\@auxout{\string\citation{#2}}\fi
+  \def\@citea{}\@cite{\@for\@citeb:=#2\do
+    {\@citea\def\@citea{{\scriptsize,}}\@ifundefined
+       {b@\@citeb}{{\bfseries ?}\@warning
+       {Citation `\@citeb' on page \thepage \space undefined}}%
+{\csname b@\@citeb\endcsname}}}{#1}}
+

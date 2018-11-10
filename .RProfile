@@ -1,0 +1,4 @@
+rm(list=ls())
+Sys.setenv(TZ="America/Edmonton")
+suppressPackageStartupMessages(library(ProjectTemplate))
+suppressPackageStartupMessages(load.project())

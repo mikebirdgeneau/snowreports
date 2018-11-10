@@ -1,0 +1,192 @@
+\documentclass[10pt]{article}
+%\usepackage[pdftex]{graphicx}
+\usepackage[small,bf,sf,textfont={small,sf,bf}]{caption}
+\usepackage{subfig}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{SR}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage[round]{natbib}
+\usepackage{multirow}
+\usepackage{pslatex}
+\usepackage{color}
+\usepackage{datetime}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[section,subsection,subsubsection]{extraplaceins}
+\definecolor{lightgrey}{gray}{0.95}
+\definecolor{darkgrey}{gray}{0.3}
+\definecolor{cyan}{cmyk}{1.0,0.3,0,0.15}
+\usepackage{titlesec}
+\usepackage[hang,flushmargin,norule,bottom]{footmisc} 
+\usepackage{float}
+
+\renewcommand\familydefault{\sfdefault}
+
+\titleformat{\section}
+{\normalfont \large \sffamily }{\thesection.}{1em}{} %\color{cyan}
+
+\titleformat{\subsection}
+{\normalfont \large \sffamily \color{darkgrey}}{}{0.75em}{}
+
+\newcommand{\mytilde}{\raise.17ex\hbox{$\scriptstyle\mathtt{\sim}$}}
+
+\def\tabularxcolumn#1{m{#1}}
+
+\newcommand{\degree}{\ensuremath{^\circ}}
+
+\makeatletter
+\def\blfootnote{\xdef\@thefnmark{}\@footnotetext}
+\makeatother
+
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+
+<<packages,echo=FALSE,error=FALSE,warning=FALSE>>=
+#setwd("~/snow-reports.ca/")
+source(file="../../lib/env_canada.R")
+source(file="../../lib/check_for_new_forecast.R")
+
+#suppressPackageStartupMessages(require(ProjectTemplate))
+suppressPackageStartupMessages(require(data.table))
+#suppressMessages(load.project())
+#load("../../output/pdf_lake_louise.Rda")
+@
+
+\begin{document}
+
+\pagestyle{fancy}
+
+\rfoot[]{\small \sffamily \href{http://snow-reports.ca/}{http://snow-reports.ca/}}
+\cfoot[]{\small \sffamily }
+\lfoot[]{\small \sffamily \href{http://snow-reports.ca}{Snow-Reports.ca}}
+
+%\setlength{\columnseprule}{0pt}
+
+\fancyhead{}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrulewidth}{0.0pt}
+
+\newcommand{\trp}{^{\scriptsize \text{T}}}
+\newcommand{\itp}{^{\scriptsize -\text{T}}}
+\newcommand{\sqrtp}{^{\scriptsize \text{T/2}}}
+\newcommand{\isqrtp}{^{\scriptsize -\text{T/2}}}
+\newcommand{\inv}{^{\scriptsize -1}}
+\newcommand{\sqr}{^{\scriptsize \text{1/2}}}
+\newcommand{\invsqr}{^{\scriptsize -\text{1/2}}}
+
+\vspace*{-1.0in}
+
+\begin{figure}[!ht]
+\flushright
+\includegraphics[width=0.4\textwidth]{./snowreportlogo_sm}
+\setlength{\abovecaptionskip}{-12pt}
+\end{figure}
+
+\vspace*{-0.65in}
+{\noindent \sffamily \huge {Rockies Regional Forecast}}\\
+%{\noindent \sffamily Weather Forecast for \Sexpr{#format.POSIXct(min(local.data.sum$min.date),format="%A %b %d %Y, %H:%M %Z")} @ \Sexpr{#local.data.sum$elev[1]}m Elevation}
+{\noindent \sffamily Weather Forecast Updated
+<<echo=FALSE,results='asis',warning=FALSE,error=FALSE>>=
+cat(format(checkNewFcst(fcst="GEMRegional")$latest,format="%Y-%m-%d %H:%M %Z"))
+@
+}
+
+\noindent \hrulefill
+\vspace*{0.15in}
+\begin{table}[ht]
+\begin{minipage}[b]{0.38\textwidth}
+\section{Overview Maps}
+  \graphicspath{ {/home/snowreports/snow-reports.ca/graphs/} }
+  \subsection{24h Forecast Snowfall}
+    \includegraphics[width=0.90\textwidth]{24h_forecastGEM_snow.png} \newline
+  \subsection{48h Forecast Snowfall}
+  \includegraphics[width=0.90\textwidth]{48h_forecastGEM_snow.png} \newline
+  \subsection{24h Cloud}
+  \includegraphics[width=0.90\textwidth]{24h_forecastGEM_cloud.png} \newline
+  %\includegraphics[width=0.7\textwidth]{24h_forecastGEM_surfpressure.png} \newline
+  
+\end{minipage}
+\begin{minipage}[b]{0.58\textwidth}
+
+  \section{24h Forecast by Location}
+  \graphicspath{{/home/snowreports/snow-reports.ca/graphs/}}
+  \subsection{Alberta Ski Resorts}
+<<forecast.data,echo=FALSE,warning=FALSE,error=FALSE,results='hide'>>=
+suppressPackageStartupMessages(require(RMySQL))
+suppressPackageStartupMessages(require(data.table))
+suppressPackageStartupMessages(require(xtable))
+con<-dbConnect(MySQL(),user="snowreports",password="dbpass",dbname="snowfall",host="localhost")
+max.date<-dbGetQuery(con,"SELECT MAX(dmax) FROM ecforecast48 WHERE `fcst.day`=1")
+fcst.data<-data.table(dbGetQuery(con,paste0("SELECT DISTINCT * FROM ecforecast48 WHERE dmax='",max.date,"' AND `fcst.day`=1")))
+fcst.data<-subset(fcst.data,select=c(resort,temp.low,temp.high,snow,rain,wind.avg,wind.dir,cloud.avg))
+get.compass.heading<-function(degrees)
+{
+  ifelse(degrees<=22.5,"N",
+         ifelse(degrees<67.5,"NE",
+                ifelse(degrees<112.5,"E",
+                       ifelse(degrees<=157.5,"SE", 
+                              ifelse(degrees<=202.5,"S",
+                                     ifelse(degrees<247.5,"SW",
+                                            ifelse(degrees<=292.5,"W",
+                                                   ifelse(degrees<=337.5,"NW","N"))))))))
+}
+#fcst.data[,wind.dir:=get.compass.heading(wind.dir),]
+fcst.data[,wind.avg:=paste0(round(wind.avg,0),"km/h, ",get.compass.heading(wind.dir)),]
+fcst.data$wind.dir<-NULL
+fcst.data[,temp.low:=paste0(round(temp.low,0),"C"),]
+fcst.data[,temp.high:=paste0(round(temp.high,0),"C"),]
+fcst.data[,snow:=paste0(round(snow,1),"cm"),]
+fcst.data[,rain:=paste0(round(rain,0),"mm"),]
+fcst.data[,cloud.avg:=ifelse(cloud.avg<0.05,"Clear",ifelse(cloud.avg<0.25,"Mostly clear",ifelse(cloud.avg<0.5,"Partly cloudy",ifelse(cloud.avg<=0.75,"Mostly cloudy","Cloudy"))))]
+#fcst.data[,cloud.avg:=paste0(round(cloud.avg*100,0),"%"),]
+setnames(fcst.data,c("resort","temp.low","temp.high","snow","rain","wind.avg","cloud.avg"),c("Location","Low","High","Snow (cm)","Rain (mm)","Wind Avg.","Cloud"))
+ab.resort.fcst<-fcst.data[Location %in% c("Canada Olympic Park","Castle","Fortress","Lake Louise","Marmot","Nakiska","Norquay","Sunshine"),]
+bc.resort.fcst<-fcst.data[Location %in% c("Fernie","Kicking Horse","Kimberley","Panorama","Revelstoke")]
+ab.resort.fcst[Location=="Canada Olympic Park",Location:="COP",]
+ab.backcountry.fcst<-fcst.data[Location %in% c("Black Prince","Highwood Pass","Bow Summit","Burstall Pass","Waterton","Parker Ridge","Lake OHara","Little Yoho","Vermillion Peak","Amiskwi Lodge","Emerald Lake")]
+ab.town.fcst<-fcst.data[Location %in% c("Calgary","Banff","Canmore")]
+@
+\begin{tabular}{c|cccccc}
+<<ab.resort.fcst,echo=FALSE,warning=FALSE,error=FALSE,results='asis'>>=
+print(xtable(ab.resort.fcst,digits=c(0),),only.contents=TRUE,include.rownames=FALSE)
+@
+\end{tabular}
+\newline
+
+\subsection{BC Ski Resorts}
+\begin{tabular}{c|cccccc}
+<<bc.resort.fcst,echo=FALSE,warning=FALSE,error=FALSE,results='asis'>>=
+print(xtable(bc.resort.fcst,digits=c(0),),only.contents=TRUE,include.rownames=FALSE)
+@
+\end{tabular}
+\newline
+
+
+  %\includegraphics[width=0.23\textwidth]{24h_forecastGEM_snow_smpdf.png} \newline
+  \subsection{Backcountry}
+  \begin{tabular}{c|cccccc}
+<<backcountry.fcst,echo=FALSE,warning=FALSE,error=FALSE,results='asis'>>=
+print(xtable(ab.backcountry.fcst,digits=c(0),),only.contents=TRUE,include.rownames=FALSE)
+@
+\end{tabular}
+\newline
+
+
+  %\includegraphics[width=0.23\textwidth]{48h_forecastGEM_snow_smpdf.png} \newline
+  \subsection{Towns / Cities}
+    \begin{tabular}{c|cccccc}
+<<ab.town.fcst,echo=FALSE,warning=FALSE,error=FALSE,results='asis'>>=
+print(xtable(ab.town.fcst,digits=c(0),),only.contents=TRUE,include.rownames=FALSE)
+@
+\end{tabular}
+\end{minipage}
+\end{table}
+
+\blfootnote{
+\noindent \textbf{Weather Data Provided by Environment Canada:} Regional Deterministic Prediction System (RDPS), 10km Forecast Grid.
+\noindent Snow-Reports.ca does not warrant the quality, accuracy, continuity or completeness of any of the Data included herein. This Data is provided on an "AS-IS" basis without any warranty. Due to the nature of mountainous terrain, local conditions and snowfall may vary significantly from the forecast. Snowfall is estimated assuming a density of $100kg/m^3$ which may vary significantly.
+}
+\clearpage
+\end{document}
