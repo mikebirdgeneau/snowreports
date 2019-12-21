@@ -29,6 +29,7 @@ getFcstTime<-function()
 
 fetchHRDPS<-function()
 {
+  dir.create("cache/ec_hrdps",showWarnings = FALSE,recursive = TRUE)
   if(!checkNewFcst("HRDPS")$fetch)
   {
     cat("[Latest HRDPS West Forecast already downloaded.]\n")
@@ -104,6 +105,7 @@ fetchHRDPS<-function()
 
 fetchGEMRegional<-function()
 {
+  dir.create("cache/ec_gemregional",showWarnings = FALSE,recursive = TRUE)
   
   if(!checkNewFcst("GEMRegional")$fetch)
   {
@@ -240,6 +242,7 @@ getFcstTimeGlobal<-function()
 
 fetchGEMGlobal<-function()
 {
+  dir.create("cache/ec_gemglobal",showWarnings = FALSE,recursive = TRUE)
   cat("[Fetching GEM Global (25km) Forecast...]\n")
     
   # Get Time
